@@ -1,29 +1,32 @@
 pipeline {
     agent any
 
-    stages {
+    environment {
+        PATH = "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    }
 
+    stages {
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Install') {
+        stage('Install Dependencies') {
             steps {
                 sh 'npm install'
             }
         }
 
-        stage('Test') {
+        stage('Run Tests') {
             steps {
-                sh 'npm test -- --watchAll=false'
+                sh 'CI=true npm test -- --watchAll=false'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build --platform linux/amd64 -t node-main:${BUILD_NUMBER} .'
+                sh 'docker build -t react-app:${BRANCH_NAME} .'
             }
         }
     }
